@@ -38,7 +38,7 @@ export function EmailCard({ email }: { email: EmailProps }) {
 
   // 1. Determine Status Level (Same as before)
   const score = email.score || 0;
-  let status = "low";
+  let status: "low" | "medium" | "critical" = "low";
   if (score >= 8) status = "critical";
   else if (score >= 5) status = "medium";
 

@@ -109,7 +109,7 @@ export default function Home() {
           <p className="text-xs text-slate-500 mt-0.5">
             Action:{" "}
             <span className="font-semibold text-slate-700">
-              {email.action || "Review required"}
+              {email.draft ? "Review Draft" : "Review required"}
             </span>
           </p>
         </div>

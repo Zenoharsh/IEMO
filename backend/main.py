@@ -3,10 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
-import re 
 
 # Import Supabase
 from supabase import create_client, Client
+
 
 # Import Agent & Gmail Logic
 from agent import analyze_email
@@ -43,7 +43,7 @@ def extract_header(email_data, header_name):
     value = None
     
     # 1. Search in payload headers (Standard)
-    payload = email_data.get('payload', {})
+    payload = email_data.get('payload') or {}
     headers = payload.get('headers', [])
     for h in headers:
         if h.get('name', '').lower() == target:
@@ -75,10 +75,11 @@ def api_fetch_emails(limit: int = 6):
     Fetches emails and analyzes them at FULL SPEED (Paid Tier).
     """
     try:
-        if not os.path.exists("credentials.json"):
+        creds_path = os.path.join(os.path.dirname(__file__), "credentials.json")
+        if not os.path.exists(creds_path):
             raise HTTPException(status_code=400, detail="Missing credentials.json")
             
-        print(f"📥 Fetching last {limit} emails...")
+        print(f"Fetching last {limit} emails...")
         raw_emails = fetch_recent_emails(limit)
         
         analyzed_results = []
@@ -89,7 +90,7 @@ def api_fetch_emails(limit: int = 6):
             sender = clean_sender(sender_raw)
             body = email.get('snippet', '')
             
-            print(f"   ⚡ Analyzing: {sender} | {subject[:30]}...")
+            print(f"   Analyzing: {sender} | {subject[:30]}...")
 
             # 2. AI Analysis (No Sleep! Full Speed!)
             try:
@@ -99,7 +100,7 @@ def api_fetch_emails(limit: int = 6):
                 reasoning = analysis.reasoning
                 draft = analysis.reply_draft
             except Exception as e:
-                print(f"   ⚠️ AI Error: {e}")
+                print(f"   AI Error: {e}")
                 # Fallback
                 category = "Uncategorized"
                 score = 0
